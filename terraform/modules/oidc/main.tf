@@ -45,6 +45,10 @@ data "aws_iam_policy_document" "trust" {
 resource "aws_iam_role" "github_actions" {
   name               = var.role_name
   assume_role_policy = data.aws_iam_policy_document.trust.json
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 data "aws_iam_policy_document" "permissions" {
@@ -112,6 +116,10 @@ resource "aws_iam_role_policy" "github_actions" {
   name   = "${var.role_name}-permissions"
   role   = aws_iam_role.github_actions.id
   policy = data.aws_iam_policy_document.permissions.json
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 output "role_arn" {

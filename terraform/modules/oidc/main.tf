@@ -2,35 +2,29 @@ variable "github_repo" {
   description = "GitHub repo in the form org/repo, e.g. dooz34/ECS-IT-PROJECT"
   type        = string
 }
-
 variable "role_name" {
   description = "Name for the IAM role GitHub Actions will assume"
   type        = string
   default     = "github-actions-oidc-role"
 }
-
 resource "aws_iam_openid_connect_provider" "github" {
   url             = "https://token.actions.githubusercontent.com"
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
 }
-
 data "aws_iam_policy_document" "trust" {
   statement {
     effect  = "Allow"
     actions = ["sts:AssumeRoleWithWebIdentity"]
-
     principals {
       type        = "Federated"
       identifiers = [aws_iam_openid_connect_provider.github.arn]
     }
-
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:aud"
       values   = ["sts.amazonaws.com"]
     }
-
     condition {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
@@ -41,16 +35,10 @@ data "aws_iam_policy_document" "trust" {
     }
   }
 }
-
 resource "aws_iam_role" "github_actions" {
   name               = var.role_name
   assume_role_policy = data.aws_iam_policy_document.trust.json
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
-
 data "aws_iam_policy_document" "permissions" {
   statement {
     sid = "ECRPush"
@@ -68,7 +56,6 @@ data "aws_iam_policy_document" "permissions" {
     ]
     resources = ["*"]
   }
-
   statement {
     sid = "ECSDeploy"
     actions = [
@@ -84,7 +71,6 @@ data "aws_iam_policy_document" "permissions" {
     ]
     resources = ["*"]
   }
-
   statement {
     sid = "IAMPassRoleForECS"
     actions = [
@@ -101,7 +87,6 @@ data "aws_iam_policy_document" "permissions" {
     ]
     resources = ["*"]
   }
-
   statement {
     sid = "TerraformState"
     actions = [
@@ -111,17 +96,11 @@ data "aws_iam_policy_document" "permissions" {
     resources = ["*"]
   }
 }
-
 resource "aws_iam_role_policy" "github_actions" {
   name   = "${var.role_name}-permissions"
   role   = aws_iam_role.github_actions.id
   policy = data.aws_iam_policy_document.permissions.json
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
-
 output "role_arn" {
   value = aws_iam_role.github_actions.arn
 }

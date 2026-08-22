@@ -29,8 +29,7 @@ data "aws_iam_policy_document" "trust" {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
       values = [
-        "repo:${var.github_repo}:*",
-        "repo:dooz34@*/ECS-IT-PROJECT@*:*"
+        "repo:dooz34@153876543/ecs-it-project@1329066164:*"
       ]
     }
   }

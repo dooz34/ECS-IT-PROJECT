@@ -1,4 +1,4 @@
-name: Terraform Apply Temp
+name: Terraform Apply
 on:
   push:
     branches: [main]
